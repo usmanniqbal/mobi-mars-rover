@@ -9,12 +9,20 @@ namespace Mars_Rover
 	public class PlateauBuilder
 	{
 		private readonly Plateau _plateau;
-		private PlateauBuilder()
+		private PlateauBuilder(Planet planet)
 		{
-			_plateau = new Plateau();
+			switch (planet)
+			{
+				case Planet.Mars:
+					_plateau = new MarsPlateau();
+					break;
+				case Planet.Venus:
+					_plateau = new VenusPlateau();
+					break;
+			}
 		}
 
-		public static PlateauBuilder Builder() => new PlateauBuilder();
+		public static PlateauBuilder Builder(Planet planet) => new PlateauBuilder(planet);
 
 		/// <summary>
 		/// Sets maximum x-axis value of plateau

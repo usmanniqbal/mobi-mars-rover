@@ -6,11 +6,13 @@ namespace Mars_Rover
 	/// Data holding class for Plateau
 	/// </summary>
 
-	public class Plateau
+	public abstract class Plateau
 	{
 		internal Plateau()
 		{
 		}
+
+		public abstract Planet Planet { get; }
 
 		/// <summary>
 		/// X coordinate of plateau specify the width.

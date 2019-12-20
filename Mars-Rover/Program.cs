@@ -7,6 +7,11 @@ namespace Mars_Rover
 	class Program
 	{
 		/// <summary>
+		/// Regex for navigation instructions
+		/// </summary>
+		static string planetInputFormat = @"^[12]$";
+
+		/// <summary>
 		/// Regex for landing instructions
 		/// </summary>
 		static string landingInputFormat = @"^[0-9]{1,7}\s[0-9]{1,7}\s[eEwWnNsS]{1}$";
@@ -32,8 +37,10 @@ namespace Mars_Rover
 			{
 				try
 				{
+					Console.WriteLine();
 					int noOfRovers = Convert.ToInt32(Environment.GetEnvironmentVariable("rovers") ?? "2");
-					var plateau = GetPlateau();
+					var planet = GetPlanet();
+					var plateau = GetPlateau(planet);
 					commands = new (string roverName, uint x, uint y, RoverOrientation orientation, char[] navigations)[noOfRovers];
 
 					// Loop for getting information of each rover from user.
@@ -71,22 +78,44 @@ namespace Mars_Rover
 		/// <summary>
 		/// Gets input for plateau from user and create its object accordingly.
 		/// </summary>
-		private static Plateau GetPlateau()
+		private static Planet GetPlanet()
 		{
-			Console.Write("Plateau: ");
+			Console.WriteLine("Select Planet:");
+			Console.WriteLine("1 - Mars:");
+			Console.WriteLine("2 - Venus:");
+			string input = Console.ReadLine();
+
+			if (!Regex.IsMatch(input, planetInputFormat))
+			{
+				Console.WriteLine("Invalid planet.");
+				return GetPlanet();
+			}
+
+			Enum.TryParse<Planet>(input, out var result);
+
+			return result;
+		}
+
+
+		/// <summary>
+		/// Gets input for plateau from user and create its object accordingly.
+		/// </summary>
+		private static Plateau GetPlateau(Planet planet)
+		{
+			Console.Write("Plateau Coordinates: ");
 			string input = Console.ReadLine();
 
 			// Checking if the provided input matches the format. If input does not match the pattern it recalls itself to get input again.
 			if (!Regex.IsMatch(input, plateauInputFormat))
 			{
 				Console.WriteLine("Invalid size, input should only be numbers seperated by space.");
-				return GetPlateau();
+				return GetPlateau(planet);
 			}
 
 			string[] plateauSize = input.ToUpper().Split(' ');
 			uint plateauX = Convert.ToUInt32(plateauSize[0]);
 			uint plateauY = Convert.ToUInt32(plateauSize[1]);
-			return PlateauBuilder.Builder()
+			return PlateauBuilder.Builder(planet)
 							.SetX(plateauX)
 							.SetY(plateauY)
 							.Create();

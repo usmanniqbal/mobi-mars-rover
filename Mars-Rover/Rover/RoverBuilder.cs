@@ -10,11 +10,39 @@ namespace Mars_Rover
 
 		private RoverBuilder(Plateau plateau)
 		{
-			_rover = new Rover();
+			switch (plateau.Planet)
+			{
+				case Planet.Mars:
+					_rover = new MarsRover();
+					break;
+				case Planet.Venus:
+					_rover = new VenueRover();
+					break;
+			}
+			_plateau = plateau;
+		}
+
+		private RoverBuilder(Planet planet, uint plateauX, uint plateauY)
+		{
+			var plateau = PlateauBuilder.Builder(planet)
+							.SetX(plateauX)
+							.SetY(plateauY)
+							.Create();
+
+			switch (plateau.Planet)
+			{
+				case Planet.Mars:
+					_rover = new MarsRover();
+					break;
+				case Planet.Venus:
+					_rover = new VenueRover();
+					break;
+			}
 			_plateau = plateau;
 		}
 
 		public static RoverBuilder Builder(Plateau plateau) => new RoverBuilder(plateau);
+		public static RoverBuilder Builder(Planet planet, uint plateauX, uint plateauY) => new RoverBuilder(planet, plateauX, plateauY);
 
 		/// <summary>
 		/// This method sets the name of rover. 
@@ -30,17 +58,18 @@ namespace Mars_Rover
 		/// </summary>
 		public RoverBuilder Landing(uint x, uint y, RoverOrientation orientation)
 		{
+			_rover.X = x;
+			_rover.Y = y;
+
 			if (x > _plateau.X || y > _plateau.Y)
 			{
 				throw new IndexOutOfRangeException($"{_rover.Name}'s landing coordinates can not be outside Plateau's coordinates");
 			}
-			else if (_plateau.Rovers.Any(o => o.X == x && o.Y == y))
+			else if (_plateau.Rovers.Contains(_rover))
 			{
 				throw new IndexOutOfRangeException($"{_rover.Name} can not land on {x},{y} as there is already a rover on the provided coordinates");
 			}
 
-			_rover.X = x;
-			_rover.Y = y;
 			_rover.Orientation = orientation;
 			_plateau.Rovers.Add(_rover);
 			return this;
